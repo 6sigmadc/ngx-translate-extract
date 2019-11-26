@@ -7,7 +7,7 @@ npm-debug.log*
 .DS_Store
 
 # Compiled files
-dist
+# dist
 
 # Extracted strings
 strings.json
@@ -17,4 +17,4 @@ strings.pot
 node_modules
 
 # Source maps for JS builds
-*.js.map
+# *.js.map
