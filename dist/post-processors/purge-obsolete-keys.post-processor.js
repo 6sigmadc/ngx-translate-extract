@@ -1,4 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PurgeObsoleteKeysPostProcessor = void 0;
 class PurgeObsoleteKeysPostProcessor {
     constructor() {
         this.name = 'PurgeObsoleteKeys';

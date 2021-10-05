@@ -1,17 +1,18 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TranslationCollection = void 0;
 class TranslationCollection {
     constructor(values = {}) {
         this.values = {};
         this.values = values;
     }
     add(key, val = '') {
-        return new TranslationCollection(Object.assign({}, this.values, { [key]: val }));
+        return new TranslationCollection(Object.assign(Object.assign({}, this.values), { [key]: val }));
     }
     addKeys(keys) {
         const values = keys.reduce((results, key) => {
-            return Object.assign({}, results, { [key]: '' });
+            return Object.assign(Object.assign({}, results), { [key]: '' });
         }, {});
-        return new TranslationCollection(Object.assign({}, this.values, values));
+        return new TranslationCollection(Object.assign(Object.assign({}, this.values), values));
     }
     remove(key) {
         return this.filter(k => key !== k);
@@ -37,7 +38,7 @@ class TranslationCollection {
         return new TranslationCollection(values);
     }
     union(collection) {
-        return new TranslationCollection(Object.assign({}, this.values, collection.values));
+        return new TranslationCollection(Object.assign(Object.assign({}, this.values), collection.values));
     }
     intersect(collection) {
         const values = {};

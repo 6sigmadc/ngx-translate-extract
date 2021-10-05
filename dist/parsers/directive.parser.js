@@ -1,11 +1,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DirectiveParser = void 0;
 const translation_collection_1 = require("../utils/translation.collection");
 const utils_1 = require("../utils/utils");
 const compiler_1 = require("@angular/compiler");
 class DirectiveParser {
     extract(source, filePath) {
-        if (filePath && utils_1.isPathAngularComponent(filePath)) {
-            source = utils_1.extractComponentInlineTemplate(source);
+        if (filePath && (0, utils_1.isPathAngularComponent)(filePath)) {
+            source = (0, utils_1.extractComponentInlineTemplate)(source);
         }
         let collection = new translation_collection_1.TranslationCollection();
         const nodes = this.parseTemplate(source, filePath);
@@ -39,7 +40,7 @@ class DirectiveParser {
         }, [node]);
     }
     parseTemplate(template, path) {
-        return compiler_1.parseTemplate(template, path).nodes;
+        return (0, compiler_1.parseTemplate)(template, path).nodes;
     }
     isElement(node) {
         return node && node.attributes !== undefined && node.children !== undefined;

@@ -1,1 +1,1 @@
-export declare const donateMessage: any;
+export declare const donateMessage: string;

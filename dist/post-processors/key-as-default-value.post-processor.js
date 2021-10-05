@@ -1,4 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.KeyAsDefaultValuePostProcessor = void 0;
 class KeyAsDefaultValuePostProcessor {
     constructor() {
         this.name = 'KeyAsDefaultValue';

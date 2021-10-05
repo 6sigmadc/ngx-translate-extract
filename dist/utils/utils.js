@@ -1,4 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.stripBOM = exports.extractComponentInlineTemplate = exports.isPathAngularComponent = void 0;
 function isPathAngularComponent(path) {
     return /\.ts|js$/i.test(path);
 }

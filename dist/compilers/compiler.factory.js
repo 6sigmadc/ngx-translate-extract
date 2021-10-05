@@ -1,4 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CompilerFactory = void 0;
 const json_compiler_1 = require("../compilers/json.compiler");
 const namespaced_json_compiler_1 = require("../compilers/namespaced-json.compiler");
 const po_compiler_1 = require("../compilers/po.compiler");

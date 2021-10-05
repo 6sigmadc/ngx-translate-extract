@@ -1,10 +1,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PipeParser = void 0;
 const translation_collection_1 = require("../utils/translation.collection");
 const utils_1 = require("../utils/utils");
 class PipeParser {
     extract(source, filePath) {
-        if (filePath && utils_1.isPathAngularComponent(filePath)) {
-            source = utils_1.extractComponentInlineTemplate(source);
+        if (filePath && (0, utils_1.isPathAngularComponent)(filePath)) {
+            source = (0, utils_1.extractComponentInlineTemplate)(source);
         }
         return this.parseTemplate(source);
     }

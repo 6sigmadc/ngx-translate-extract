@@ -1,4 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.JsonCompiler = void 0;
 const translation_collection_1 = require("../utils/translation.collection");
 const utils_1 = require("../utils/utils");
 const flat_1 = require("flat");
@@ -14,9 +15,9 @@ class JsonCompiler {
         return JSON.stringify(collection.values, null, this.indentation);
     }
     parse(contents) {
-        let values = JSON.parse(utils_1.stripBOM(contents));
+        let values = JSON.parse((0, utils_1.stripBOM)(contents));
         if (this.isNamespacedJsonFormat(values)) {
-            values = flat_1.flatten(values);
+            values = (0, flat_1.flatten)(values);
         }
         return new translation_collection_1.TranslationCollection(values);
     }

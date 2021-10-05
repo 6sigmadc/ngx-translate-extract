@@ -1,4 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ExtractTask = void 0;
 const translation_collection_1 = require("../../utils/translation.collection");
 const colorette_1 = require("colorette");
 const glob = require("glob");
@@ -19,7 +20,7 @@ class ExtractTask {
         this.postProcessors = [];
         this.inputs = inputs.map(input => path.resolve(input));
         this.outputs = outputs.map(output => path.resolve(output));
-        this.options = Object.assign({}, this.options, options);
+        this.options = Object.assign(Object.assign({}, this.options), options);
     }
     execute() {
         if (!this.compiler) {
@@ -28,10 +29,10 @@ class ExtractTask {
         this.printEnabledParsers();
         this.printEnabledPostProcessors();
         this.printEnabledCompiler();
-        this.out(colorette_1.bold('Extracting:'));
+        this.out((0, colorette_1.bold)('Extracting:'));
         const extracted = this.extract();
-        this.out(colorette_1.green(`\nFound %d strings.\n`), extracted.count());
-        this.out(colorette_1.bold('Saving:'));
+        this.out((0, colorette_1.green)(`\nFound %d strings.\n`), extracted.count());
+        this.out((0, colorette_1.bold)('Saving:'));
         this.outputs.forEach(output => {
             let dir = output;
             let filename = `strings.${this.compiler.extension}`;
@@ -46,15 +47,15 @@ class ExtractTask {
             }
             const draft = extracted.union(existing);
             if (existing.isEmpty()) {
-                this.out(colorette_1.dim(`- ${outputPath}`));
+                this.out((0, colorette_1.dim)(`- ${outputPath}`));
             }
             else {
-                this.out(colorette_1.dim(`- ${outputPath} (merged)`));
+                this.out((0, colorette_1.dim)(`- ${outputPath} (merged)`));
             }
             const final = this.process(draft, extracted, existing);
             this.save(outputPath, final);
         });
-        this.out(colorette_1.green('\nDone.\n'));
+        this.out((0, colorette_1.green)('\nDone.\n'));
     }
     setParsers(parsers) {
         this.parsers = parsers;
@@ -73,7 +74,7 @@ class ExtractTask {
         console.log(this.options);
         this.inputs.forEach(dir => {
             this.readDir(dir, this.options.patterns).forEach(filePath => {
-                this.out(colorette_1.dim('- %s'), filePath);
+                this.out((0, colorette_1.dim)('- %s'), filePath);
                 const contents = fs.readFileSync(filePath, 'utf-8');
                 this.parsers.forEach(parser => {
                     const extracted = parser.extract(contents, filePath, this.options.custService, this.options.custMethod);
@@ -110,28 +111,28 @@ class ExtractTask {
         console.log.apply(this, arguments);
     }
     printEnabledParsers() {
-        this.out(colorette_1.cyan('Enabled parsers:'));
+        this.out((0, colorette_1.cyan)('Enabled parsers:'));
         if (this.parsers.length) {
-            this.out(colorette_1.cyan(colorette_1.dim(this.parsers.map(parser => `- ${parser.constructor.name}`).join('\n'))));
+            this.out((0, colorette_1.cyan)((0, colorette_1.dim)(this.parsers.map(parser => `- ${parser.constructor.name}`).join('\n'))));
         }
         else {
-            this.out(colorette_1.cyan(colorette_1.dim('(none)')));
+            this.out((0, colorette_1.cyan)((0, colorette_1.dim)('(none)')));
         }
         this.out();
     }
     printEnabledPostProcessors() {
-        this.out(colorette_1.cyan('Enabled post processors:'));
+        this.out((0, colorette_1.cyan)('Enabled post processors:'));
         if (this.postProcessors.length) {
-            this.out(colorette_1.cyan(colorette_1.dim(this.postProcessors.map(postProcessor => `- ${postProcessor.constructor.name}`).join('\n'))));
+            this.out((0, colorette_1.cyan)((0, colorette_1.dim)(this.postProcessors.map(postProcessor => `- ${postProcessor.constructor.name}`).join('\n'))));
         }
         else {
-            this.out(colorette_1.cyan(colorette_1.dim('(none)')));
+            this.out((0, colorette_1.cyan)((0, colorette_1.dim)('(none)')));
         }
         this.out();
     }
     printEnabledCompiler() {
-        this.out(colorette_1.cyan('Compiler:'));
-        this.out(colorette_1.cyan(colorette_1.dim(`- ${this.compiler.constructor.name}`)));
+        this.out((0, colorette_1.cyan)('Compiler:'));
+        this.out((0, colorette_1.cyan)((0, colorette_1.dim)(`- ${this.compiler.constructor.name}`)));
         this.out();
     }
 }

@@ -1,4 +1,5 @@
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.cli = void 0;
 const fs = require("fs");
 const yargs = require("yargs");
 const extract_task_1 = require("./tasks/extract.task");
