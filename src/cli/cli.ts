@@ -16,7 +16,6 @@ import { PurgeObsoleteKeysPostProcessor } from '../post-processors/purge-obsolet
 import { CompilerInterface } from '../compilers/compiler.interface';
 import { CompilerFactory } from '../compilers/compiler.factory';
 import { normalizePaths } from '../utils/fs-helpers';
-import { donateMessage } from '../utils/donate';
 
 // First parsing pass to be able to access pattern argument for use input/output arguments
 const y = yargs.option('patterns', {
@@ -166,7 +165,6 @@ extractTask.setCompiler(compiler);
 try {
 	extractTask.execute();
 	console.log(green('\nDone.\n'));
-	console.log(donateMessage);
 	process.exit(0);
 } catch (e) {
 	console.log(red(`\nAn error occurred: ${e}\n`));

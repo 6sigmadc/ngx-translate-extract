@@ -1,14 +1,13 @@
 # IDE
 .vscode
 .idea
+.husky
 
 # Logs and other files
 npm-debug.log*
 .DS_Store
 
 # Compiled files
-# dist
-=======
 dist
 src/**/*.js
 tests/**/*.js

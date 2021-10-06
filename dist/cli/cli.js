@@ -14,7 +14,6 @@ const string_as_default_value_post_processor_1 = require("../post-processors/str
 const purge_obsolete_keys_post_processor_1 = require("../post-processors/purge-obsolete-keys.post-processor");
 const compiler_factory_1 = require("../compilers/compiler.factory");
 const fs_helpers_1 = require("../utils/fs-helpers");
-const donate_1 = require("../utils/donate");
 const y = yargs.option('patterns', {
     alias: 'p',
     describe: 'Default patterns',
@@ -152,7 +151,6 @@ extractTask.setCompiler(compiler);
 try {
     extractTask.execute();
     console.log((0, colorette_1.green)('\nDone.\n'));
-    console.log(donate_1.donateMessage);
     process.exit(0);
 }
 catch (e) {
