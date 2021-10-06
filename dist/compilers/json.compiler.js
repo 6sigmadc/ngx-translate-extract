@@ -22,7 +22,7 @@ class JsonCompiler {
         return new translation_collection_1.TranslationCollection(values);
     }
     isNamespacedJsonFormat(values) {
-        return Object.keys(values).some(key => typeof values[key] === 'object');
+        return Object.keys(values).some((key) => typeof values[key] === 'object');
     }
 }
 exports.JsonCompiler = JsonCompiler;

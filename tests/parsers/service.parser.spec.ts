@@ -11,6 +11,18 @@ describe('ServiceParser', () => {
 		parser = new ServiceParser();
 	});
 
+	it('should extract strings when TranslateService is accessed directly via constructor parameter', () => {
+		const contents = `
+			@Component({ })
+			export class MyComponent {
+				public constructor(protected translateService: TranslateService) {
+					translateService.get('It works!');
+				}
+		`;
+		const keys = parser.extract(contents, componentFilename).keys();
+		expect(keys).to.deep.equal(['It works!']);
+	});
+
 	it('should support extracting binary expressions', () => {
 		const contents = `
 			@Component({ })
@@ -324,4 +336,22 @@ describe('ServiceParser', () => {
 		expect(keys).to.deep.equal(['Delete Email Server Settings', 'Are you sure? This cannot be undone!']);
 	});
 	
+
+	it("should extract strings in if called inside a method and string interpolated", () => {
+		const contents = `
+			@Component({ })
+			export class AppComponent {
+				public constructor(protected appService: AppService) { }
+				public test() {
+					const config = {
+						title: this.appService.translate('Delete Email Server Settings'),
+						messages: [\`\${this.appService.translate('Are you sure? This cannot be undone!')} abc\`],
+						buttons: [ResultEnum.Cancel, ResultEnum.Yes]
+					};
+				}
+		`;
+		const keys = parser.extract(contents, componentFilename, 'AppService', 'translate').keys();
+		console.log(keys);
+		expect(keys).to.deep.equal(['Delete Email Server Settings', 'Are you sure? This cannot be undone!']);
+	});
 });

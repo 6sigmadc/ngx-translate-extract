@@ -1,6 +1,6 @@
 {
-  "name": "@biesbjerg/ngx-translate-extract",
-  "version": "4.2.0",
+  "name": "@6sigmadc/ngx-translate-extract",
+  "version": "7.0.4",
   "description": "Extract strings from projects using ngx-translate",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/biesbjerg/ngx-translate-extract.git"
+    "url": "https://github.com/6sigmadc/ngx-translate-extract.git"
   },
   "keywords": [
     "angular",
@@ -50,12 +50,7 @@
     "i18n",
     "gettext"
   ],
-  "author": "Kim Biesbjerg <kim@biesbjerg.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/biesbjerg/ngx-translate-extract/issues"
-  },
-  "homepage": "https://github.com/biesbjerg/ngx-translate-extract",
   "engines": {
     "node": ">=11.15.0"
   },
@@ -73,13 +68,13 @@
     "@types/yargs": "^16.0.1",
     "braces": "^3.0.2",
     "chai": "^4.3.4",
+    "eslint": "^7.26.0",
     "husky": "^6.0.0",
     "lint-staged": "^10.5.4",
     "mocha": "^8.3.2",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "ts-node": "^9.1.1",
-    "eslint": "^7.26.0",
     "typescript": "^4.2.4"
   },
   "peerDependencies": {
@@ -89,7 +84,7 @@
   "dependencies": {
     "@phenomnomnominal/tsquery": "^4.1.1",
     "boxen": "^5.0.1",
-    "colorette": "^1.2.2",
+    "colorette": "^1.4.0",
     "flat": "^5.0.2",
     "gettext-parser": "^4.0.4",
     "glob": "^7.1.6",

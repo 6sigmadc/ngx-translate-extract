@@ -1,11 +1,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExtractTask = void 0;
 const translation_collection_1 = require("../../utils/translation.collection");
-const colorette_1 = require("colorette");
 const glob = require("glob");
 const fs = require("fs");
 const path = require("path");
 const mkdirp = require("mkdirp");
+const colorette_1 = require("colorette");
 class ExtractTask {
     constructor(inputs, outputs, options) {
         this.inputs = inputs;
@@ -18,9 +18,9 @@ class ExtractTask {
         };
         this.parsers = [];
         this.postProcessors = [];
-        this.inputs = inputs.map(input => path.resolve(input));
-        this.outputs = outputs.map(output => path.resolve(output));
-        this.options = Object.assign(Object.assign({}, this.options), options);
+        this.inputs = inputs.map((input) => path.resolve(input));
+        this.outputs = outputs.map((output) => path.resolve(output));
+        this.options = { ...this.options, ...options };
     }
     execute() {
         if (!this.compiler) {
@@ -33,7 +33,7 @@ class ExtractTask {
         const extracted = this.extract();
         this.out((0, colorette_1.green)(`\nFound %d strings.\n`), extracted.count());
         this.out((0, colorette_1.bold)('Saving:'));
-        this.outputs.forEach(output => {
+        this.outputs.forEach((output) => {
             let dir = output;
             let filename = `strings.${this.compiler.extension}`;
             if (!fs.existsSync(output) || !fs.statSync(output).isDirectory()) {
@@ -43,19 +43,29 @@ class ExtractTask {
             const outputPath = path.join(dir, filename);
             let existing = new translation_collection_1.TranslationCollection();
             if (!this.options.replace && fs.existsSync(outputPath)) {
-                existing = this.compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
+                try {
+                    existing = this.compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
+                }
+                catch (e) {
+                    this.out(`%s %s`, (0, colorette_1.dim)(`- ${outputPath}`), (0, colorette_1.red)(`[ERROR]`));
+                    throw e;
+                }
             }
             const draft = extracted.union(existing);
-            if (existing.isEmpty()) {
-                this.out((0, colorette_1.dim)(`- ${outputPath}`));
-            }
-            else {
-                this.out((0, colorette_1.dim)(`- ${outputPath} (merged)`));
-            }
             const final = this.process(draft, extracted, existing);
-            this.save(outputPath, final);
+            try {
+                let event = 'CREATED';
+                if (fs.existsSync(outputPath)) {
+                    this.options.replace ? (event = 'REPLACED') : (event = 'MERGED');
+                }
+                this.save(outputPath, final);
+                this.out(`%s %s`, (0, colorette_1.dim)(`- ${outputPath}`), (0, colorette_1.green)(`[${event}]`));
+            }
+            catch (e) {
+                this.out(`%s %s`, (0, colorette_1.dim)(`- ${outputPath}`), (0, colorette_1.red)(`[ERROR]`));
+                throw e;
+            }
         });
-        this.out((0, colorette_1.green)('\nDone.\n'));
     }
     setParsers(parsers) {
         this.parsers = parsers;
@@ -71,13 +81,12 @@ class ExtractTask {
     }
     extract() {
         let collection = new translation_collection_1.TranslationCollection();
-        console.log(this.options);
-        this.inputs.forEach(dir => {
-            this.readDir(dir, this.options.patterns).forEach(filePath => {
+        this.inputs.forEach((pattern) => {
+            this.getFiles(pattern).forEach((filePath) => {
                 this.out((0, colorette_1.dim)('- %s'), filePath);
                 const contents = fs.readFileSync(filePath, 'utf-8');
-                this.parsers.forEach(parser => {
-                    const extracted = parser.extract(contents, filePath, this.options.custService, this.options.custMethod);
+                this.parsers.forEach((parser) => {
+                    const extracted = parser.extract(contents, filePath);
                     if (extracted instanceof translation_collection_1.TranslationCollection) {
                         collection = collection.union(extracted);
                     }
@@ -87,7 +96,7 @@ class ExtractTask {
         return collection;
     }
     process(draft, extracted, existing) {
-        this.postProcessors.forEach(postProcessor => {
+        this.postProcessors.forEach((postProcessor) => {
             draft = postProcessor.process(draft, extracted, existing);
         });
         return draft;
@@ -99,13 +108,8 @@ class ExtractTask {
         }
         fs.writeFileSync(output, this.compiler.compile(collection));
     }
-    readDir(dir, patterns) {
-        return patterns.reduce((results, pattern) => {
-            return glob
-                .sync(dir + pattern)
-                .filter(filePath => fs.statSync(filePath).isFile())
-                .concat(results);
-        }, []);
+    getFiles(pattern) {
+        return glob.sync(pattern).filter((filePath) => fs.statSync(filePath).isFile());
     }
     out(...args) {
         console.log.apply(this, arguments);
@@ -113,7 +117,7 @@ class ExtractTask {
     printEnabledParsers() {
         this.out((0, colorette_1.cyan)('Enabled parsers:'));
         if (this.parsers.length) {
-            this.out((0, colorette_1.cyan)((0, colorette_1.dim)(this.parsers.map(parser => `- ${parser.constructor.name}`).join('\n'))));
+            this.out((0, colorette_1.cyan)((0, colorette_1.dim)(this.parsers.map((parser) => `- ${parser.constructor.name}`).join('\n'))));
         }
         else {
             this.out((0, colorette_1.cyan)((0, colorette_1.dim)('(none)')));
@@ -123,7 +127,7 @@ class ExtractTask {
     printEnabledPostProcessors() {
         this.out((0, colorette_1.cyan)('Enabled post processors:'));
         if (this.postProcessors.length) {
-            this.out((0, colorette_1.cyan)((0, colorette_1.dim)(this.postProcessors.map(postProcessor => `- ${postProcessor.constructor.name}`).join('\n'))));
+            this.out((0, colorette_1.cyan)((0, colorette_1.dim)(this.postProcessors.map((postProcessor) => `- ${postProcessor.constructor.name}`).join('\n'))));
         }
         else {
             this.out((0, colorette_1.cyan)((0, colorette_1.dim)('(none)')));

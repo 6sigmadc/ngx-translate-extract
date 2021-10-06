@@ -4,11 +4,11 @@ import { ParserInterface } from '../../parsers/parser.interface';
 import { PostProcessorInterface } from '../../post-processors/post-processor.interface';
 import { CompilerInterface } from '../../compilers/compiler.interface';
 
-import { cyan, green, bold, dim } from 'colorette';
 import * as glob from 'glob';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
+import { bold, cyan, dim, green, red } from 'colorette';
 
 export interface ExtractTaskOptionsInterface {
 	replace?: boolean;
@@ -30,8 +30,8 @@ export class ExtractTask implements TaskInterface {
 	protected compiler: CompilerInterface;
 
 	public constructor(protected inputs: string[], protected outputs: string[], options?: ExtractTaskOptionsInterface) {
-		this.inputs = inputs.map(input => path.resolve(input));
-		this.outputs = outputs.map(output => path.resolve(output));
+		this.inputs = inputs.map((input) => path.resolve(input));
+		this.outputs = outputs.map((output) => path.resolve(output));
 		this.options = { ...this.options, ...options };
 	}
 
@@ -50,7 +50,7 @@ export class ExtractTask implements TaskInterface {
 
 		this.out(bold('Saving:'));
 
-		this.outputs.forEach(output => {
+		this.outputs.forEach((output) => {
 			let dir: string = output;
 			let filename: string = `strings.${this.compiler.extension}`;
 			if (!fs.existsSync(output) || !fs.statSync(output).isDirectory()) {
@@ -62,26 +62,33 @@ export class ExtractTask implements TaskInterface {
 
 			let existing: TranslationCollection = new TranslationCollection();
 			if (!this.options.replace && fs.existsSync(outputPath)) {
-				existing = this.compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
+				try {
+					existing = this.compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
+				} catch (e) {
+					this.out(`%s %s`, dim(`- ${outputPath}`), red(`[ERROR]`));
+					throw e;
+				}
 			}
 
 			// merge extracted strings with existing
 			const draft = extracted.union(existing);
 
-			if (existing.isEmpty()) {
-				this.out(dim(`- ${outputPath}`));
-			} else {
-				this.out(dim(`- ${outputPath} (merged)`));
-			}
-
 			// Run collection through post processors
 			const final = this.process(draft, extracted, existing);
 
-			// Save to file
-			this.save(outputPath, final);
+			// Save
+			try {
+				let event = 'CREATED';
+				if (fs.existsSync(outputPath)) {
+					this.options.replace ? (event = 'REPLACED') : (event = 'MERGED');
+				}
+				this.save(outputPath, final);
+				this.out(`%s %s`, dim(`- ${outputPath}`), green(`[${event}]`));
+			} catch (e) {
+				this.out(`%s %s`, dim(`- ${outputPath}`), red(`[ERROR]`));
+				throw e;
+			}
 		});
-
-		this.out(green('\nDone.\n'));
 	}
 
 	public setParsers(parsers: ParserInterface[]): this {
@@ -105,13 +112,12 @@ export class ExtractTask implements TaskInterface {
 	protected extract(): TranslationCollection {
 
 		let collection: TranslationCollection = new TranslationCollection();
-		console.log(this.options);
-		this.inputs.forEach(dir => {
-			this.readDir(dir, this.options.patterns).forEach(filePath => {
+		this.inputs.forEach((pattern) => {
+			this.getFiles(pattern).forEach((filePath) => {
 				this.out(dim('- %s'), filePath);
 				const contents: string = fs.readFileSync(filePath, 'utf-8');
-				this.parsers.forEach(parser => {
-					const extracted = parser.extract(contents, filePath, this.options.custService, this.options.custMethod);
+				this.parsers.forEach((parser) => {
+					const extracted = parser.extract(contents, filePath);
 					if (extracted instanceof TranslationCollection) {
 						collection = collection.union(extracted);
 					}
@@ -125,7 +131,7 @@ export class ExtractTask implements TaskInterface {
 	 * Run strings through configured post processors
 	 */
 	protected process(draft: TranslationCollection, extracted: TranslationCollection, existing: TranslationCollection): TranslationCollection {
-		this.postProcessors.forEach(postProcessor => {
+		this.postProcessors.forEach((postProcessor) => {
 			draft = postProcessor.process(draft, extracted, existing);
 		});
 		return draft;
@@ -144,15 +150,10 @@ export class ExtractTask implements TaskInterface {
 	}
 
 	/**
-	 * Get all files in dir matching patterns
+	 * Get all files matching pattern
 	 */
-	protected readDir(dir: string, patterns: string[]): string[] {
-		return patterns.reduce((results, pattern) => {
-			return glob
-				.sync(dir + pattern)
-				.filter(filePath => fs.statSync(filePath).isFile())
-				.concat(results);
-		}, []);
+	protected getFiles(pattern: string): string[] {
+		return glob.sync(pattern).filter((filePath) => fs.statSync(filePath).isFile());
 	}
 
 	protected out(...args: any[]): void {
@@ -162,7 +163,7 @@ export class ExtractTask implements TaskInterface {
 	protected printEnabledParsers(): void {
 		this.out(cyan('Enabled parsers:'));
 		if (this.parsers.length) {
-			this.out(cyan(dim(this.parsers.map(parser => `- ${parser.constructor.name}`).join('\n'))));
+			this.out(cyan(dim(this.parsers.map((parser) => `- ${parser.constructor.name}`).join('\n'))));
 		} else {
 			this.out(cyan(dim('(none)')));
 		}
@@ -172,7 +173,7 @@ export class ExtractTask implements TaskInterface {
 	protected printEnabledPostProcessors(): void {
 		this.out(cyan('Enabled post processors:'));
 		if (this.postProcessors.length) {
-			this.out(cyan(dim(this.postProcessors.map(postProcessor => `- ${postProcessor.constructor.name}`).join('\n'))));
+			this.out(cyan(dim(this.postProcessors.map((postProcessor) => `- ${postProcessor.constructor.name}`).join('\n'))));
 		} else {
 			this.out(cyan(dim('(none)')));
 		}

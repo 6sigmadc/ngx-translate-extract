@@ -14,7 +14,7 @@ class MarkerParser {
         }
         let collection = new translation_collection_1.TranslationCollection();
         const callExpressions = (0, ast_helpers_1.findFunctionCallExpressions)(sourceFile, markerImportName);
-        callExpressions.forEach(callExpression => {
+        callExpressions.forEach((callExpression) => {
             const [firstArg] = callExpression.arguments;
             if (!firstArg) {
                 return;

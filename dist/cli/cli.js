@@ -1,7 +1,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cli = void 0;
-const fs = require("fs");
 const yargs = require("yargs");
+const colorette_1 = require("colorette");
 const extract_task_1 = require("./tasks/extract.task");
 const pipe_parser_1 = require("../parsers/pipe.parser");
 const directive_parser_1 = require("../parsers/directive.parser");
@@ -10,10 +10,20 @@ const marker_parser_1 = require("../parsers/marker.parser");
 const sort_by_key_post_processor_1 = require("../post-processors/sort-by-key.post-processor");
 const key_as_default_value_post_processor_1 = require("../post-processors/key-as-default-value.post-processor");
 const null_as_default_value_post_processor_1 = require("../post-processors/null-as-default-value.post-processor");
+const string_as_default_value_post_processor_1 = require("../post-processors/string-as-default-value.post-processor");
 const purge_obsolete_keys_post_processor_1 = require("../post-processors/purge-obsolete-keys.post-processor");
 const compiler_factory_1 = require("../compilers/compiler.factory");
+const fs_helpers_1 = require("../utils/fs-helpers");
 const donate_1 = require("../utils/donate");
-exports.cli = yargs
+const y = yargs.option('patterns', {
+    alias: 'p',
+    describe: 'Default patterns',
+    type: 'array',
+    default: ['/**/*.html', '/**/*.ts'],
+    hidden: true
+});
+const parsed = y.parse();
+exports.cli = y
     .usage('Extract strings from files for translation.\nUsage: $0 [options]')
     .version(require(__dirname + '/../../package.json').version)
     .alias('version', 'v')
@@ -27,19 +37,9 @@ exports.cli = yargs
     normalize: true,
     required: true
 })
-    .check(options => {
-    options.input.forEach((dir) => {
-        if (!fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) {
-            throw new Error(`The path you supplied was not found: '${dir}'`);
-        }
-    });
-    return true;
-})
-    .option('patterns', {
-    alias: 'p',
-    describe: 'Extract strings from the following file patterns',
-    type: 'array',
-    default: ['/**/*.html', '/**/*.ts']
+    .coerce('input', (input) => {
+    const paths = (0, fs_helpers_1.normalizePaths)(input, parsed.patterns);
+    return paths;
 })
     .option('output', {
     alias: 'o',
@@ -48,16 +48,20 @@ exports.cli = yargs
     normalize: true,
     required: true
 })
+    .coerce('output', (output) => {
+    const paths = (0, fs_helpers_1.normalizePaths)(output, parsed.patterns);
+    return paths;
+})
     .option('format', {
     alias: 'f',
-    describe: 'Output format',
+    describe: 'Format',
     default: 'json',
     type: 'string',
     choices: ['json', 'namespaced-json', 'pot']
 })
     .option('format-indentation', {
     alias: 'fi',
-    describe: 'Output format indentation',
+    describe: 'Format indentation (JSON/Namedspaced JSON)',
     default: '\t',
     type: 'string'
 })
@@ -68,23 +72,31 @@ exports.cli = yargs
 })
     .option('sort', {
     alias: 's',
-    describe: 'Sort strings in alphabetical order when saving',
+    describe: 'Sort strings in alphabetical order',
     type: 'boolean'
 })
     .option('clean', {
     alias: 'c',
-    describe: 'Remove obsolete strings when merging',
+    describe: 'Remove obsolete strings after merge',
     type: 'boolean'
 })
     .option('key-as-default-value', {
     alias: 'k',
-    describe: 'Use key as default value for translations',
-    type: 'boolean'
+    describe: 'Use key as default value',
+    type: 'boolean',
+    conflicts: ['null-as-default-value', 'string-as-default-value']
 })
     .option('null-as-default-value', {
     alias: 'n',
-    describe: 'Use null as default value for translations',
-    type: 'boolean'
+    describe: 'Use null as default value',
+    type: 'boolean',
+    conflicts: ['key-as-default-value', 'string-as-default-value']
+})
+    .option('string-as-default-value', {
+    alias: 'd',
+    describe: 'Use string as default value',
+    type: 'string',
+    conflicts: ['null-as-default-value', 'key-as-default-value']
 })
     .option('servicename', {
     alias: 'sn',
@@ -96,7 +108,16 @@ exports.cli = yargs
     describe: 'Translate function name to be used',
     type: 'string'
 })
+    .group(['format', 'format-indentation', 'sort', 'clean', 'replace'], 'Output')
+    .group(['key-as-default-value', 'null-as-default-value', 'string-as-default-value'], 'Extracted key value (defaults to empty string)')
     .conflicts('key-as-default-value', 'null-as-default-value')
+    .example(`$0 -i ./src-a/ -i ./src-b/ -o strings.json`, 'Extract (ts, html) from multiple paths')
+    .example(`$0 -i './{src-a,src-b}/' -o strings.json`, 'Extract (ts, html) from multiple paths using brace expansion')
+    .example(`$0 -i ./src/ -o ./i18n/da.json -o ./i18n/en.json`, 'Extract (ts, html) and save to da.json and en.json')
+    .example(`$0 -i ./src/ -o './i18n/{en,da}.json'`, 'Extract (ts, html) and save to da.json and en.json using brace expansion')
+    .example(`$0 -i './src/**/*.{ts,tsx,html}' -o strings.json`, 'Extract from ts, tsx and html')
+    .example(`$0 -i './src/**/!(*.spec).{ts,html}' -o strings.json`, 'Extract from ts, html, excluding files with ".spec" in filename')
+    .wrap(110)
     .exitProcess(true)
     .parse(process.argv);
 const extractTask = new extract_task_1.ExtractTask(exports.cli.input, exports.cli.output, {
@@ -117,6 +138,9 @@ if (exports.cli.keyAsDefaultValue) {
 else if (exports.cli.nullAsDefaultValue) {
     postProcessors.push(new null_as_default_value_post_processor_1.NullAsDefaultValuePostProcessor());
 }
+else if (exports.cli.stringAsDefaultValue) {
+    postProcessors.push(new string_as_default_value_post_processor_1.StringAsDefaultValuePostProcessor({ defaultValue: exports.cli.stringAsDefaultValue }));
+}
 if (exports.cli.sort) {
     postProcessors.push(new sort_by_key_post_processor_1.SortByKeyPostProcessor());
 }
@@ -125,6 +149,14 @@ const compiler = compiler_factory_1.CompilerFactory.create(exports.cli.format, {
     indentation: exports.cli.formatIndentation
 });
 extractTask.setCompiler(compiler);
-extractTask.execute();
-console.log(donate_1.donateMessage);
+try {
+    extractTask.execute();
+    console.log((0, colorette_1.green)('\nDone.\n'));
+    console.log(donate_1.donateMessage);
+    process.exit(0);
+}
+catch (e) {
+    console.log((0, colorette_1.red)(`\nAn error occurred: ${e}\n`));
+    process.exit(1);
+}
 //# sourceMappingURL=cli.js.map

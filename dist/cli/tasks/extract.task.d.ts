@@ -24,7 +24,7 @@ export declare class ExtractTask implements TaskInterface {
     protected extract(): TranslationCollection;
     protected process(draft: TranslationCollection, extracted: TranslationCollection, existing: TranslationCollection): TranslationCollection;
     protected save(output: string, collection: TranslationCollection): void;
-    protected readDir(dir: string, patterns: string[]): string[];
+    protected getFiles(pattern: string): string[];
     protected out(...args: any[]): void;
     protected printEnabledParsers(): void;
     protected printEnabledPostProcessors(): void;

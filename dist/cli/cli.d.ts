@@ -10,6 +10,7 @@ export declare const cli: {
     clean: boolean;
     "key-as-default-value": boolean;
     "null-as-default-value": boolean;
+    "string-as-default-value": string;
     servicename: string;
     methodname: string;
     _: (string | number)[];

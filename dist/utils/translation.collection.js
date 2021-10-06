@@ -6,19 +6,19 @@ class TranslationCollection {
         this.values = values;
     }
     add(key, val = '') {
-        return new TranslationCollection(Object.assign(Object.assign({}, this.values), { [key]: val }));
+        return new TranslationCollection({ ...this.values, [key]: val });
     }
     addKeys(keys) {
         const values = keys.reduce((results, key) => {
-            return Object.assign(Object.assign({}, results), { [key]: '' });
+            return { ...results, [key]: '' };
         }, {});
-        return new TranslationCollection(Object.assign(Object.assign({}, this.values), values));
+        return new TranslationCollection({ ...this.values, ...values });
     }
     remove(key) {
-        return this.filter(k => key !== k);
+        return this.filter((k) => key !== k);
     }
     forEach(callback) {
-        Object.keys(this.values).forEach(key => callback.call(this, key, this.values[key]));
+        Object.keys(this.values).forEach((key) => callback.call(this, key, this.values[key]));
         return this;
     }
     filter(callback) {
@@ -38,11 +38,11 @@ class TranslationCollection {
         return new TranslationCollection(values);
     }
     union(collection) {
-        return new TranslationCollection(Object.assign(Object.assign({}, this.values), collection.values));
+        return new TranslationCollection({ ...this.values, ...collection.values });
     }
     intersect(collection) {
         const values = {};
-        this.filter(key => collection.has(key)).forEach((key, val) => {
+        this.filter((key) => collection.has(key)).forEach((key, val) => {
             values[key] = val;
         });
         return new TranslationCollection(values);
@@ -66,7 +66,7 @@ class TranslationCollection {
         const values = {};
         this.keys()
             .sort(compareFn)
-            .forEach(key => {
+            .forEach((key) => {
             values[key] = this.get(key);
         });
         return new TranslationCollection(values);

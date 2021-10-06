@@ -15,32 +15,27 @@ Add a script to your project's `package.json`:
 ```json
 ...
 "scripts": {
-  "extract-i18n": "ngx-translate-extract --input ./src --output ./src/assets/i18n/ --clean --sort --format namespaced-json"
+  "i18n:init": "ngx-translate-extract --input ./src --output ./src/assets/i18n/template.json --key-as-default-value --replace --format json",
+  "i18n:extract": "ngx-translate-extract --input ./src --output ./src/assets/i18n/{en,da,de,fi,nb,nl,sv}.json --clean --format json"
 }
 ...
 ```
-You can now run `npm run extract-i18n` and it will extract strings from your project.
+You can now run `npm run i18n:extract` and it will extract strings from your project.
 
 ## Usage
 
 **Extract from dir and save to file**
 
-`ngx-translate-extract --input ./src --output ./src/assets/i18n/template.json`
+`ngx-translate-extract --input ./src --output ./src/assets/i18n/strings.json`
 
 **Extract from multiple dirs**
 
-`ngx-translate-extract --input ./src-a ./src-b --output ./src/assets/i18n/template.json`
+`ngx-translate-extract --input ./src-a ./src-b --output ./src/assets/i18n/strings.json`
 
 
 **Extract and save to multiple files using path expansion**
 
-_Note: This method does not work on Windows!_
-
 `ngx-translate-extract --input ./src --output ./src/i18n/{da,en}.json`
-
-On Windows you must specify each output destination individually:
-
-`ngx-translate-extract --input ./src --output ./src/i18n/da.json ./src/i18n/en.json`
 
 ### JSON indentation
 Tabs are used by default for indentation when saving extracted strings in json formats:
@@ -76,29 +71,38 @@ _Note: `ngx-translate-extract` will automatically detect the import name_
 Usage:
 ngx-translate-extract [options]
 
+Output
+  --format, -f                Format    [string] [choices: "json", "namespaced-json", "pot"] [default: "json"]
+  --format-indentation, --fi  Format indentation (JSON/Namedspaced JSON)                [string] [default: "	"]
+  --sort, -s                  Sort strings in alphabetical order                                     [boolean]
+  --clean, -c                 Remove obsolete strings after merge                                    [boolean]
+  --replace, -r               Replace the contents of output file if it exists (Merges by default)   [boolean]
+
+Extracted key value (defaults to empty string)
+  --key-as-default-value, -k     Use key as default value                                            [boolean]
+  --null-as-default-value, -n    Use null as default value                                           [boolean]
+  --string-as-default-value, -d  Use string as default value                                          [string]
+
 Options:
-  --version, -v               Show version number                      [boolean]
-  --help, -h                  Show help                                [boolean]
-  --input, -i                 Paths you would like to extract strings from. You
-                              can use path expansion, glob patterns and multiple
-                              paths
-                      [array] [default: current working path]
-     [array] [required] [default: current working path]
-  --patterns, -p               Extract strings from the following file patterns
-                                    [array] [default: ["/**/*.html","/**/*.ts"]]
-  --output, -o                 Paths where you would like to save extracted
-                               strings. You can use path expansion, glob
-                               patterns and multiple paths    [array] [required]
-  --format, -f                 Output format
-          [string] [choices: "json", "namespaced-json", "pot"] [default: "json"]
-  --format-indentation, --fi   Output format indentation  [string] [default: "	"]
-  --replace, -r                Replace the contents of output file if it exists
-                               (Merges by default)                     [boolean]
-  --sort, -s                   Sort strings in alphabetical order when saving
-                                                                       [boolean]
-  --clean, -c                  Remove obsolete strings when merging    [boolean]
-  --key-as-default-value, -k   Use key as default value for translations
-                                                                       [boolean]
-  --null-as-default-value, -n  Use null as default value for translations
-                                                                       [boolean]
+  --version, -v  Show version number                                                                 [boolean]
+  --help, -h     Show help                                                                           [boolean]
+  --input, -i    Paths you would like to extract strings from. You can use path expansion, glob patterns and
+                 multiple paths        [array] [required] [default: ["/Users/kim/apps/ngx-translate-extract"]]
+  --output, -o   Paths where you would like to save extracted strings. You can use path expansion, glob
+                 patterns and multiple paths                                                [array] [required]
+
+Examples:
+  ngx-translate-extract -i ./src-a/ -i ./src-b/ -o strings.json           Extract (ts, html) from multiple paths
+  ngx-translate-extract -i './{src-a,src-b}/' -o strings.json             Extract (ts, html) from multiple paths using brace
+                                                           expansion
+  ngx-translate-extract -i ./src/ -o ./i18n/da.json -o ./i18n/en.json     Extract (ts, html) and save to da.json and en.json
+  ngx-translate-extract -i ./src/ -o './i18n/{en,da}.json'                Extract (ts, html) and save to da.json and en.json
+                                                           using brace expansion
+  ngx-translate-extract -i './src/**/*.{ts,tsx,html}' -o strings.json     Extract from ts, tsx and html
+  ngx-translate-extract -i './src/**/!(*.spec).{ts,html}' -o              Extract from ts, html, excluding files with ".spec"
+  strings.json
 ```
+
+## Note for GetText users
+
+Please pay attention of which version of `gettext-parser` you actually use in your project. For instance, `gettext-parser:1.2.2` does not support HTML tags in translation keys.

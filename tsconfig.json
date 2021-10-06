@@ -1,31 +1,25 @@
 {
     "compilerOptions": {
         "allowSyntheticDefaultImports": true,
-        "noUnusedLocals": true,
         "noImplicitAny": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "noImplicitUseStrict": true,
         "removeComments": true,
         "declaration": true,
-        "target": "es2015",
+        "target": "es2019",
         "lib": [
-            "dom",
-            "es2018"
+            "es2019"
         ],
         "module": "commonjs",
-        "outDir": "./dist/",
+        "outDir": "dist",
         "sourceMap": true,
         "typeRoots" : [
-            "./node_modules/@types"
+            "node_modules/@types"
         ]
     },
     "include": [
-        "src/**/*.ts",
-        "tests/**/*.ts"
+        "src/**/*.ts"
     ],
-    "exclude": [
-        "node_modules",
-        "tests/**/*.ts"
-    ]
+    "exclude": []
 }

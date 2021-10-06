@@ -16,13 +16,12 @@ class ServiceParser {
             return null;
         }
         let collection = new translation_collection_1.TranslationCollection();
-        classDeclarations.forEach(classDeclaration => {
-            const propName = (0, ast_helpers_1.findClassPropertyByType)(classDeclaration, serviceName);
-            if (!propName) {
-                return;
-            }
-            const callExpressions = (0, ast_helpers_1.findMethodCallExpressions)(classDeclaration, propName, TRANSLATE_SERVICE_METHOD_NAMES);
-            callExpressions.forEach(callExpression => {
+        classDeclarations.forEach((classDeclaration) => {
+            const callExpressions = [
+                ...this.findConstructorParamCallExpressions(classDeclaration, serviceName, TRANSLATE_SERVICE_METHOD_NAMES),
+                ...this.findPropertyCallExpressions(classDeclaration, serviceName, TRANSLATE_SERVICE_METHOD_NAMES)
+            ];
+            callExpressions.forEach((callExpression) => {
                 const [firstArg] = callExpression.arguments;
                 if (!firstArg) {
                     return;
@@ -32,6 +31,21 @@ class ServiceParser {
             });
         });
         return collection;
+    }
+    findConstructorParamCallExpressions(classDeclaration, serviceName, methodNames) {
+        const constructorDeclaration = (0, ast_helpers_1.findConstructorDeclaration)(classDeclaration);
+        if (!constructorDeclaration) {
+            return [];
+        }
+        const paramName = (0, ast_helpers_1.findMethodParameterByType)(constructorDeclaration, serviceName);
+        return (0, ast_helpers_1.findMethodCallExpressions)(constructorDeclaration, paramName, methodNames);
+    }
+    findPropertyCallExpressions(classDeclaration, serviceName, methodNames) {
+        const propName = (0, ast_helpers_1.findClassPropertyByType)(classDeclaration, serviceName);
+        if (!propName) {
+            return [];
+        }
+        return (0, ast_helpers_1.findPropertyCallExpressions)(classDeclaration, propName, methodNames);
     }
 }
 exports.ServiceParser = ServiceParser;

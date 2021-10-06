@@ -1,7 +1,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PoCompiler = void 0;
 const translation_collection_1 = require("../utils/translation.collection");
-const gettext = require("gettext-parser");
+const gettext_parser_1 = require("gettext-parser");
 class PoCompiler {
     constructor(options) {
         this.extension = 'po';
@@ -17,25 +17,31 @@ class PoCompiler {
             },
             translations: {
                 [this.domain]: Object.keys(collection.values).reduce((translations, key) => {
-                    return Object.assign(Object.assign({}, translations), { [key]: {
+                    return {
+                        ...translations,
+                        [key]: {
                             msgid: key,
                             msgstr: collection.get(key)
-                        } });
+                        }
+                    };
                 }, {})
             }
         };
-        return gettext.po.compile(data);
+        return gettext_parser_1.po.compile(data).toString('utf8');
     }
     parse(contents) {
         const collection = new translation_collection_1.TranslationCollection();
-        const po = gettext.po.parse(contents, 'utf8');
-        if (!po.translations.hasOwnProperty(this.domain)) {
+        const parsedPo = gettext_parser_1.po.parse(contents, 'utf8');
+        if (!parsedPo.translations.hasOwnProperty(this.domain)) {
             return collection;
         }
-        const values = Object.keys(po.translations[this.domain])
-            .filter(key => key.length > 0)
+        const values = Object.keys(parsedPo.translations[this.domain])
+            .filter((key) => key.length > 0)
             .reduce((result, key) => {
-            return Object.assign(Object.assign({}, result), { [key]: po.translations[this.domain][key].msgstr.pop() });
+            return {
+                ...result,
+                [key]: parsedPo.translations[this.domain][key].msgstr.pop()
+            };
         }, {});
         return new translation_collection_1.TranslationCollection(values);
     }
