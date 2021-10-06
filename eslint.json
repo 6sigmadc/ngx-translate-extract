@@ -1,7 +1,8 @@
 {
   "defaultSeverity": "error",
   "extends": [
-    "tslint-config-prettier"
+    "eslint-config-prettier",
+    "eslint:recommended"
   ],
   "rules": {
     "arrow-return-shorthand": true,
