@@ -1,5 +1,5 @@
 {
-  "extends": ["./tslint.json", "tslint-etc"],
+  "extends": ["./eslint.json", "eslint-etc"],
   "jsRules": {},
   "rules": {
     "ordered-imports": false,

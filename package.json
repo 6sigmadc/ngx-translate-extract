@@ -26,7 +26,7 @@
   },
   "lint-staged": {
     "{src,tests}/**/*.{ts}": [
-      "tslint --project tsconfig.json -c tslint.commit.json --fix",
+      "eslint --project tsconfig.json -c eslint.commit.json --fix",
       "prettier --write"
     ]
   },
@@ -64,6 +64,8 @@
     "braces": "^3.0.2",
     "chai": "^4.3.4",
     "eslint": "^7.26.0",
+    "eslint-etc": "^4.2.5",
+    "husky": "^7.0.2",
     "lint-staged": "^10.5.4",
     "mocha": "^8.3.2",
     "prettier": "^2.2.1",
