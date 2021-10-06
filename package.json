@@ -19,6 +19,11 @@
     "test": "mocha -r ts-node/register tests/**/*.spec.ts",
     "prepare": "husky install"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm test"
+    }
+  },
   "prettier": {
     "trailingComma": "none",
     "printWidth": 145,

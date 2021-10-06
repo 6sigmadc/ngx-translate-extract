@@ -9,7 +9,7 @@ class ServiceParser {
     extract(source, filePath, custServiceName, custMethodName) {
         const sourceFile = tsquery_1.tsquery.ast(source, filePath);
         const serviceName = custServiceName ? custServiceName : TRANSLATE_SERVICE_TYPE_REFERENCE;
-        if (custMethodName)
+        if (custMethodName && custMethodName !== '' && TRANSLATE_SERVICE_METHOD_NAMES.findIndex(value => value === custMethodName) < 0)
             TRANSLATE_SERVICE_METHOD_NAMES.push(custMethodName);
         const classDeclarations = (0, ast_helpers_1.findClassDeclarations)(sourceFile);
         if (!classDeclarations) {
