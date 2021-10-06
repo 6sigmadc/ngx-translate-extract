@@ -16,7 +16,8 @@
     "watch": "npm run clean && tsc --watch",
     "clean": "rimraf ./dist",
     "lint": "eslint --force './src/**/*.ts'",
-    "test": "mocha -r ts-node/register tests/**/*.spec.ts"
+    "test": "mocha -r ts-node/register tests/**/*.spec.ts",
+    "prepare": "husky install"
   },
   "prettier": {
     "trailingComma": "none",
