@@ -81,8 +81,8 @@
     "typescript": "^4.2.4"
   },
   "peerDependencies": {
-    "@angular/compiler": ">=8.0.0",
-    "typescript": ">=3.0.0"
+    "@angular/compiler": ">=12.0.0",
+    "typescript": ">=4.2.4"
   },
   "dependencies": {
     "@phenomnomnominal/tsquery": "^4.1.1",
