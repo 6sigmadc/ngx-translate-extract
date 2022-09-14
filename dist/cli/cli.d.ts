@@ -5,12 +5,16 @@ export declare const cli: {
     output: string[];
     format: string;
     "format-indentation": string;
+    formatIndentation: string;
     replace: boolean;
     sort: boolean;
     clean: boolean;
     "key-as-default-value": boolean;
+    keyAsDefaultValue: boolean;
     "null-as-default-value": boolean;
+    nullAsDefaultValue: boolean;
     "string-as-default-value": string;
+    stringAsDefaultValue: string;
     servicename: string;
     methodname: string;
     _: (string | number)[];

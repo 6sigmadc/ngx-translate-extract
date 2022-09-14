@@ -1,16 +1,15 @@
 # IDE
 .vscode
 .idea
-.husky
 
 # Logs and other files
 npm-debug.log*
 .DS_Store
 
 # Compiled files
-dist
 src/**/*.js
 tests/**/*.js
+dist
 
 # Extracted strings
 strings.json
@@ -20,4 +19,5 @@ strings.pot
 node_modules
 
 # Source maps for JS builds
-# *.js.map
+*.js.map
+

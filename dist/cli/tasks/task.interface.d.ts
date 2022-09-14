@@ -1,3 +1,3 @@
 export interface TaskInterface {
-    execute(): void;
+    execute: () => void;
 }

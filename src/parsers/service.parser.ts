@@ -1,66 +1,66 @@
-import { ClassDeclaration, CallExpression } from 'typescript';
-import { tsquery } from '@phenomnomnominal/tsquery';
+import { ClassDeclaration, CallExpression } from 'typescript'
+import { tsquery } from '@phenomnomnominal/tsquery'
 
-import { ParserInterface } from './parser.interface';
-import { TranslationCollection } from '../utils/translation.collection';
+import { ParserInterface } from './parser.interface.js'
+import { TranslationCollection } from '../utils/translation.collection.js'
 import {
-	findClassDeclarations,
-	findClassPropertyByType,
-	findPropertyCallExpressions,
-	findMethodCallExpressions,
-	getStringsFromExpression,
-	findMethodParameterByType,
-	findConstructorDeclaration
-} from '../utils/ast-helpers';
+  findClassDeclarations,
+  findClassPropertyByType,
+  findPropertyCallExpressions,
+  findMethodCallExpressions,
+  getStringsFromExpression,
+  findMethodParameterByType,
+  findConstructorDeclaration
+} from '../utils/ast-helpers.js'
 
-const TRANSLATE_SERVICE_TYPE_REFERENCE = 'TranslateService';
-const TRANSLATE_SERVICE_METHOD_NAMES: string[] = ['get', 'instant', 'stream'];
+const TRANSLATE_SERVICE_TYPE_REFERENCE = 'TranslateService'
+const TRANSLATE_SERVICE_METHOD_NAMES = ['get', 'instant', 'stream']
 
 export class ServiceParser implements ParserInterface {
-	public extract(source: string, filePath: string, custServiceName?: string, custMethodName?: string): TranslationCollection | null {
-		const sourceFile = tsquery.ast(source, filePath);
-		const serviceName = custServiceName ? custServiceName : TRANSLATE_SERVICE_TYPE_REFERENCE;
-		if(custMethodName && custMethodName !== '' && TRANSLATE_SERVICE_METHOD_NAMES.findIndex(value => value===custMethodName) < 0) TRANSLATE_SERVICE_METHOD_NAMES.push(custMethodName);
+  public extract (source: string, filePath: string, custServiceName?: string, custMethodName?: string): TranslationCollection | null {
+    const sourceFile = tsquery.ast(source, filePath)
+    const serviceName = custServiceName || TRANSLATE_SERVICE_TYPE_REFERENCE
+    if (custMethodName) TRANSLATE_SERVICE_METHOD_NAMES.push(custMethodName)
 
-		const classDeclarations = findClassDeclarations(sourceFile);
-		if (!classDeclarations) {
-			return null;
-		}
+    const classDeclarations = findClassDeclarations(sourceFile)
+    if (!classDeclarations) {
+      return null
+    }
 
-		let collection: TranslationCollection = new TranslationCollection();
+    let collection: TranslationCollection = new TranslationCollection()
 
-		classDeclarations.forEach((classDeclaration) => {
-			const callExpressions = [
-				...this.findConstructorParamCallExpressions(classDeclaration, serviceName, TRANSLATE_SERVICE_METHOD_NAMES),
-				...this.findPropertyCallExpressions(classDeclaration, serviceName, TRANSLATE_SERVICE_METHOD_NAMES)
-			];
+    classDeclarations.forEach((classDeclaration) => {
+      const callExpressions = [
+        ...this.findConstructorParamCallExpressions(classDeclaration),
+        ...this.findPropertyCallExpressions(classDeclaration, serviceName)
+      ]
 
-			callExpressions.forEach((callExpression) => {
-				const [firstArg] = callExpression.arguments;
-				if (!firstArg) {
-					return;
-				}
-				const strings = getStringsFromExpression(firstArg);
-				collection = collection.addKeys(strings);
-			});
-		});
-		return collection;
-	}
+      callExpressions.forEach((callExpression) => {
+        const [firstArg] = callExpression.arguments
+        if (!firstArg) {
+          return
+        }
+        const strings = getStringsFromExpression(firstArg)
+        collection = collection.addKeys(strings)
+      })
+    })
+    return collection
+  }
 
-	protected findConstructorParamCallExpressions(classDeclaration: ClassDeclaration, serviceName: string, methodNames: string[]): CallExpression[] {
-		const constructorDeclaration = findConstructorDeclaration(classDeclaration);
-		if (!constructorDeclaration) {
-			return [];
-		}
-		const paramName = findMethodParameterByType(constructorDeclaration, serviceName);
-		return findMethodCallExpressions(constructorDeclaration, paramName, methodNames);
-	}
+  protected findConstructorParamCallExpressions (classDeclaration: ClassDeclaration): CallExpression[] {
+    const constructorDeclaration = findConstructorDeclaration(classDeclaration)
+    if (!constructorDeclaration) {
+      return []
+    }
+    const paramName = findMethodParameterByType(constructorDeclaration, TRANSLATE_SERVICE_TYPE_REFERENCE)
+    return findMethodCallExpressions(constructorDeclaration, paramName, TRANSLATE_SERVICE_METHOD_NAMES)
+  }
 
-	protected findPropertyCallExpressions(classDeclaration: ClassDeclaration, serviceName: string, methodNames: string[]): CallExpression[] {
-		const propName: string = findClassPropertyByType(classDeclaration, serviceName);
-		if (!propName) {
-			return [];
-		}
-		return findPropertyCallExpressions(classDeclaration, propName, methodNames);
-	}
+  protected findPropertyCallExpressions (classDeclaration: ClassDeclaration, serviceName: string): CallExpression[] {
+    const propName: string = findClassPropertyByType(classDeclaration, serviceName)
+    if (!propName) {
+      return []
+    }
+    return findPropertyCallExpressions(classDeclaration, propName, TRANSLATE_SERVICE_METHOD_NAMES)
+  }
 }

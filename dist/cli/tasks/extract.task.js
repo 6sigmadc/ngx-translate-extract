@@ -1,23 +1,25 @@
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ExtractTask = void 0;
-const translation_collection_1 = require("../../utils/translation.collection");
-const glob = require("glob");
-const fs = require("fs");
-const path = require("path");
-const mkdirp = require("mkdirp");
-const colorette_1 = require("colorette");
-class ExtractTask {
+import { TranslationCollection } from '../../utils/translation.collection.js';
+import { cyan, green, bold, dim, red } from 'colorette';
+import pkg from 'glob';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as mkdirp from 'mkdirp';
+const { sync } = pkg;
+export class ExtractTask {
+    inputs;
+    outputs;
+    options = {
+        replace: false,
+        patterns: [],
+        custService: null,
+        custMethod: null
+    };
+    parsers = [];
+    postProcessors = [];
+    compiler;
     constructor(inputs, outputs, options) {
         this.inputs = inputs;
         this.outputs = outputs;
-        this.options = {
-            replace: false,
-            patterns: [],
-            custService: null,
-            custMethod: null
-        };
-        this.parsers = [];
-        this.postProcessors = [];
         this.inputs = inputs.map((input) => path.resolve(input));
         this.outputs = outputs.map((output) => path.resolve(output));
         this.options = { ...this.options, ...options };
@@ -29,10 +31,10 @@ class ExtractTask {
         this.printEnabledParsers();
         this.printEnabledPostProcessors();
         this.printEnabledCompiler();
-        this.out((0, colorette_1.bold)('Extracting:'));
+        this.out(bold('Extracting:'));
         const extracted = this.extract();
-        this.out((0, colorette_1.green)(`\nFound %d strings.\n`), extracted.count());
-        this.out((0, colorette_1.bold)('Saving:'));
+        this.out(green('\nFound %d strings.\n'), extracted.count());
+        this.out(bold('Saving:'));
         this.outputs.forEach((output) => {
             let dir = output;
             let filename = `strings.${this.compiler.extension}`;
@@ -41,13 +43,13 @@ class ExtractTask {
                 filename = path.basename(output);
             }
             const outputPath = path.join(dir, filename);
-            let existing = new translation_collection_1.TranslationCollection();
+            let existing = new TranslationCollection();
             if (!this.options.replace && fs.existsSync(outputPath)) {
                 try {
                     existing = this.compiler.parse(fs.readFileSync(outputPath, 'utf-8'));
                 }
                 catch (e) {
-                    this.out(`%s %s`, (0, colorette_1.dim)(`- ${outputPath}`), (0, colorette_1.red)(`[ERROR]`));
+                    this.out('%s %s', dim(`- ${outputPath}`), red('[ERROR]'));
                     throw e;
                 }
             }
@@ -59,10 +61,10 @@ class ExtractTask {
                     this.options.replace ? (event = 'REPLACED') : (event = 'MERGED');
                 }
                 this.save(outputPath, final);
-                this.out(`%s %s`, (0, colorette_1.dim)(`- ${outputPath}`), (0, colorette_1.green)(`[${event}]`));
+                this.out('%s %s', dim(`- ${outputPath}`), green(`[${event}]`));
             }
             catch (e) {
-                this.out(`%s %s`, (0, colorette_1.dim)(`- ${outputPath}`), (0, colorette_1.red)(`[ERROR]`));
+                this.out('%s %s', dim(`- ${outputPath}`), red('[ERROR]'));
                 throw e;
             }
         });
@@ -80,14 +82,14 @@ class ExtractTask {
         return this;
     }
     extract() {
-        let collection = new translation_collection_1.TranslationCollection();
+        let collection = new TranslationCollection();
         this.inputs.forEach((pattern) => {
             this.getFiles(pattern).forEach((filePath) => {
-                this.out((0, colorette_1.dim)('- %s'), filePath);
+                this.out(dim('- %s'), filePath);
                 const contents = fs.readFileSync(filePath, 'utf-8');
                 this.parsers.forEach((parser) => {
-                    const extracted = parser.extract(contents, filePath);
-                    if (extracted instanceof translation_collection_1.TranslationCollection) {
+                    const extracted = parser.extract(contents, filePath, this.options.custService, this.options.custMethod);
+                    if (extracted instanceof TranslationCollection) {
                         collection = collection.union(extracted);
                     }
                 });
@@ -109,36 +111,35 @@ class ExtractTask {
         fs.writeFileSync(output, this.compiler.compile(collection));
     }
     getFiles(pattern) {
-        return glob.sync(pattern).filter((filePath) => fs.statSync(filePath).isFile());
+        return sync(pattern).filter((filePath) => fs.statSync(filePath).isFile());
     }
     out(...args) {
         console.log.apply(this, arguments);
     }
     printEnabledParsers() {
-        this.out((0, colorette_1.cyan)('Enabled parsers:'));
-        if (this.parsers.length) {
-            this.out((0, colorette_1.cyan)((0, colorette_1.dim)(this.parsers.map((parser) => `- ${parser.constructor.name}`).join('\n'))));
+        this.out(cyan('Enabled parsers:'));
+        if (this.parsers.length > 0) {
+            this.out(cyan(dim(this.parsers.map((parser) => `- ${parser.constructor.name}`).join('\n'))));
         }
         else {
-            this.out((0, colorette_1.cyan)((0, colorette_1.dim)('(none)')));
+            this.out(cyan(dim('(none)')));
         }
         this.out();
     }
     printEnabledPostProcessors() {
-        this.out((0, colorette_1.cyan)('Enabled post processors:'));
-        if (this.postProcessors.length) {
-            this.out((0, colorette_1.cyan)((0, colorette_1.dim)(this.postProcessors.map((postProcessor) => `- ${postProcessor.constructor.name}`).join('\n'))));
+        this.out(cyan('Enabled post processors:'));
+        if (this.postProcessors.length > 0) {
+            this.out(cyan(dim(this.postProcessors.map((postProcessor) => `- ${postProcessor.constructor.name}`).join('\n'))));
         }
         else {
-            this.out((0, colorette_1.cyan)((0, colorette_1.dim)('(none)')));
+            this.out(cyan(dim('(none)')));
         }
         this.out();
     }
     printEnabledCompiler() {
-        this.out((0, colorette_1.cyan)('Compiler:'));
-        this.out((0, colorette_1.cyan)((0, colorette_1.dim)(`- ${this.compiler.constructor.name}`)));
+        this.out(cyan('Compiler:'));
+        this.out(cyan(dim(`- ${this.compiler.constructor.name}`)));
         this.out();
     }
 }
-exports.ExtractTask = ExtractTask;
 //# sourceMappingURL=extract.task.js.map

@@ -1,6 +1,5 @@
 {
-  "extends": ["./eslint.json", "eslint-etc"],
-  "jsRules": {},
+  "extends": ["./eslint.json"],
   "rules": {
     "ordered-imports": false,
     "no-unused-declaration": true

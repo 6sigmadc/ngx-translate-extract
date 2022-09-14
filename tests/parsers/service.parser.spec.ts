@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { ServiceParser } from '../../src/parsers/service.parser';
+import { ServiceParser } from '../../src/parsers/service.parser.js';
 
 describe('ServiceParser', () => {
 	const componentFilename: string = 'test.component.ts';
@@ -336,22 +336,4 @@ describe('ServiceParser', () => {
 		expect(keys).to.deep.equal(['Delete Email Server Settings', 'Are you sure? This cannot be undone!']);
 	});
 	
-
-	it("should extract strings in if called inside a method and string interpolated", () => {
-		const contents = `
-			@Component({ })
-			export class AppComponent {
-				public constructor(protected appService: AppService) { }
-				public test() {
-					const config = {
-						title: this.appService.translate('Delete Email Server Settings'),
-						messages: [\`\${this.appService.translate('Are you sure? This cannot be undone!')} abc\`],
-						buttons: [ResultEnum.Cancel, ResultEnum.Yes]
-					};
-				}
-		`;
-		const keys = parser.extract(contents, componentFilename, 'AppService', 'translate').keys();
-		console.log(keys);
-		expect(keys).to.deep.equal(['Delete Email Server Settings', 'Are you sure? This cannot be undone!']);
-	});
 });
