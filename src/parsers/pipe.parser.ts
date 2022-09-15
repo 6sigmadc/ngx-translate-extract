@@ -148,11 +148,14 @@ export class PipeParser implements ParserInterface {
   }
 
   protected expressionIsOrHasBindingPipe (exp: any): exp is BindingPipe {
-    if (exp.name && exp.name === TRANSLATE_PIPE_NAME) {
-      return true
-    }
-    if (exp.exp && exp.exp instanceof BindingPipe) {
-      return this.expressionIsOrHasBindingPipe(exp.exp)
+    if(exp)
+    {
+      if (exp.name && exp.name === TRANSLATE_PIPE_NAME) {
+        return true
+      }
+      if (exp.exp && exp.exp instanceof BindingPipe) {
+        return this.expressionIsOrHasBindingPipe(exp.exp)
+      }
     }
     return false
   }

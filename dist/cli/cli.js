@@ -106,11 +106,6 @@ export const cli = y
     describe: 'Translate function name to be used',
     type: 'string'
 })
-    .option('patterns', {
-    alias: 'p',
-    describe: 'Patterns',
-    type: 'string'
-})
     .group(['format', 'format-indentation', 'sort', 'clean', 'replace'], 'Output')
     .group(['key-as-default-value', 'null-as-default-value', 'string-as-default-value'], 'Extracted key value (defaults to empty string)')
     .conflicts('key-as-default-value', 'null-as-default-value')

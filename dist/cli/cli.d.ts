@@ -1,12 +1,13 @@
 export declare const cli: {
     [x: string]: unknown;
-    replace: boolean;
     input: string[];
-    sort: boolean;
+    patterns: string[];
     output: string[];
     format: string;
     "format-indentation": string;
     formatIndentation: string;
+    replace: boolean;
+    sort: boolean;
     clean: boolean;
     "key-as-default-value": boolean;
     keyAsDefaultValue: boolean;
@@ -16,7 +17,6 @@ export declare const cli: {
     stringAsDefaultValue: string;
     servicename: string;
     methodname: string;
-    patterns: string;
     _: (string | number)[];
     $0: string;
 };
