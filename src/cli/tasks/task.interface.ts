@@ -1,3 +1,5 @@
+import { TranslationCollection } from "../../utils/translation.collection";
+
 export interface TaskInterface {
-  execute: () => void
+  execute: (print?: boolean) =>  TranslationCollection
 }

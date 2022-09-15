@@ -5,7 +5,7 @@ import { PostProcessorInterface } from '../../post-processors/post-processor.int
 import { CompilerInterface } from '../../compilers/compiler.interface.js';
 export interface ExtractTaskOptionsInterface {
     replace?: boolean;
-    patterns?: string[];
+    patterns?: string;
     custService?: string;
     custMethod?: string;
 }
@@ -16,6 +16,7 @@ export declare class ExtractTask implements TaskInterface {
     protected parsers: ParserInterface[];
     protected postProcessors: PostProcessorInterface[];
     protected compiler: CompilerInterface;
+    patterns: string;
     constructor(inputs: string[], outputs: string[], options?: ExtractTaskOptionsInterface);
     execute(): void;
     setParsers(parsers: ParserInterface[]): this;
@@ -24,7 +25,7 @@ export declare class ExtractTask implements TaskInterface {
     protected extract(): TranslationCollection;
     protected process(draft: TranslationCollection, extracted: TranslationCollection, existing: TranslationCollection): TranslationCollection;
     protected save(output: string, collection: TranslationCollection): void;
-    protected getFiles(pattern: string): string[];
+    protected getFiles(pattern: string, path: string): string[];
     protected out(...args: any[]): void;
     protected printEnabledParsers(): void;
     protected printEnabledPostProcessors(): void;

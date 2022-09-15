@@ -14,10 +14,10 @@ dist
 # Extracted strings
 strings.json
 strings.pot
-
+npm 
 # Dependency directory
 node_modules
 
 # Source maps for JS builds
 *.js.map
-
+.npmrc

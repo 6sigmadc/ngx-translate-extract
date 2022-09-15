@@ -1,6 +1,6 @@
 {
   "name": "@6sigmadc/ngx-translate-extract",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Extract strings from projects using ngx-translate",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -95,7 +95,7 @@
     "colorette": "^2.0.19",
     "flat": "^5.0.2",
     "gettext-parser": "^6.0.0",
-    "glob": "^8.0.3",
+    "glob": "^7.1.6",
     "mkdirp": "^1.0.4",
     "path": "^0.12.7",
     "terminal-link": "^3.0.0",

@@ -29,6 +29,7 @@ export class ExtractTask implements TaskInterface {
   protected parsers: ParserInterface[] = []
   protected postProcessors: PostProcessorInterface[] = []
   protected compiler: CompilerInterface
+  public print = true;
 
   public constructor (protected inputs: string[], protected outputs: string[], options?: ExtractTaskOptionsInterface) {
     this.inputs = inputs.map((input) => path.resolve(input))
@@ -36,19 +37,21 @@ export class ExtractTask implements TaskInterface {
     this.options = { ...this.options, ...options }
   }
 
-  public execute (): void {
+  public execute (): TranslationCollection {
+    let extracted: TranslationCollection;
+
     if (!this.compiler) {
       throw new Error('No compiler configured')
     }
 
-    this.printEnabledParsers()
     this.printEnabledPostProcessors()
+    this.printEnabledParsers()
     this.printEnabledCompiler()
-
+    
     this.out(bold('Extracting:'))
-    const extracted = this.extract()
-    this.out(green('\nFound %d strings.\n'), extracted.count())
+    extracted = this.extract()
 
+    this.out(green('\nFound %d strings.\n'), extracted.count())
     this.out(bold('Saving:'))
 
     this.outputs.forEach((output) => {
@@ -90,6 +93,7 @@ export class ExtractTask implements TaskInterface {
         throw e
       }
     })
+    return extracted;
   }
 
   public setParsers (parsers: ParserInterface[]): this {
@@ -157,7 +161,8 @@ export class ExtractTask implements TaskInterface {
   }
 
   protected out (...args: any[]): void {
-    console.log.apply(this, arguments)
+    if(this.print)
+      console.log.apply(this, arguments)
   }
 
   protected printEnabledParsers (): void {

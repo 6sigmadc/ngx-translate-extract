@@ -10,19 +10,21 @@ export class ExtractTask {
     outputs;
     options = {
         replace: false,
-        patterns: [],
+        patterns: '**/.*',
         custService: null,
         custMethod: null
     };
     parsers = [];
     postProcessors = [];
     compiler;
+    patterns;
     constructor(inputs, outputs, options) {
         this.inputs = inputs;
         this.outputs = outputs;
         this.inputs = inputs.map((input) => path.resolve(input));
         this.outputs = outputs.map((output) => path.resolve(output));
         this.options = { ...this.options, ...options };
+        this.patterns = this.options.patterns;
     }
     execute() {
         if (!this.compiler) {
@@ -83,8 +85,8 @@ export class ExtractTask {
     }
     extract() {
         let collection = new TranslationCollection();
-        this.inputs.forEach((pattern) => {
-            this.getFiles(pattern).forEach((filePath) => {
+        this.inputs.forEach((path) => {
+            this.getFiles(this.patterns, path).forEach((filePath) => {
                 this.out(dim('- %s'), filePath);
                 const contents = fs.readFileSync(filePath, 'utf-8');
                 this.parsers.forEach((parser) => {
@@ -110,8 +112,8 @@ export class ExtractTask {
         }
         fs.writeFileSync(output, this.compiler.compile(collection));
     }
-    getFiles(pattern) {
-        return sync(pattern).filter((filePath) => fs.statSync(filePath).isFile());
+    getFiles(pattern, path) {
+        return sync(pattern, { cwd: path }).filter((filePath) => fs.statSync(filePath).isFile());
     }
     out(...args) {
         console.log.apply(this, arguments);
